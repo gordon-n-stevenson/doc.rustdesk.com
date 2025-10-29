@@ -390,8 +390,3 @@ fi
 # Echo the value of the password variable
 echo "Password: $rustdesk_pw"
 echo "..............................................."
-
-# Echo the value of the password variable
-echo "Password: $rustdesk_pw"
-echo "..............................................."
-```
