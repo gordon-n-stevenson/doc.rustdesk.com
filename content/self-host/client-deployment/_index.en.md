@@ -280,13 +280,28 @@ open -n /Applications/RustDesk.app
 ```sh
 #!/bin/bash
 
+# --- User Configurable Variables ---
+
 # Assign a random value to the password variable
 rustdesk_pw=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 
 # Get your config string from your Web portal and Fill Below
 rustdesk_cfg="configstring"
 
+# Set the RustDesk client version to install
+# You can update this variable when a new version is released
+RUSTDESK_VER="1.4.3"
+
+# --- End of User Configurable Variables ---
+
 ################################## Please Do Not Edit Below This Line #########################################
+
+# Define download URLs and filenames based on the version
+DEB_URL="https://github.com/rustdesk/rustdesk/releases/download/${RUSTDESK_VER}/rustdesk-${RUSTDESK_VER}-x86_64.deb"
+DEB_FILE="rustdesk-${RUSTDESK_VER}-x86_64.deb"
+RPM_URL="https://github.com/rustdesk/rustdesk/releases/download/${RUSTDESK_VER}/rustdesk-${RUSTDESK_VER}-0.x86_64.rpm"
+RPM_FILE="rustdesk-${RUSTDESK_VER}-0.x86_64.rpm"
+
 
 # Check if the script is being run as root
 if [[ $EUID -ne 0 ]]; then
@@ -337,13 +352,15 @@ fi
 
 # Install RustDesk
 
-echo "Installing RustDesk"
+echo "Installing RustDesk v${RUSTDESK_VER}"
 if [ "${ID}" = "debian" ] || [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ] || [ "${UPSTREAM_ID}" = "ubuntu" ] || [ "${UPSTREAM_ID}" = "debian" ]; then
-    wget https://github.com/rustdesk/rustdesk/releases/download/1.2.6/rustdesk-1.2.6-x86_64.deb
-    apt-get install -fy ./rustdesk-1.2.6-x86_64.deb > null
+    wget ${DEB_URL}
+    apt-get install -fy ./${DEB_FILE} > null
+    rm ./${DEB_FILE} # Clean up downloaded file
 elif [ "$OS" = "CentOS" ] || [ "$OS" = "RedHat" ] || [ "$OS" = "Fedora Linux" ] || [ "${UPSTREAM_ID}" = "rhel" ] || [ "$OS" = "Almalinux" ] || [ "$OS" = "Rocky*" ] ; then
-    wget https://github.com/rustdesk/rustdesk/releases/download/1.2.6/rustdesk-1.2.6-0.x86_64.rpm
-    yum localinstall ./rustdesk-1.2.6-0.x86_64.rpm -y > null
+    wget ${RPM_URL}
+    yum localinstall ./${RPM_FILE} -y > null
+    rm ./${RPM_FILE} # Clean up downloaded file
 else
     echo "Unsupported OS"
     # here you could ask the user for permission to try and install anyway
@@ -369,6 +386,10 @@ if [ -n "$rustdesk_id" ]; then
 else
     echo "Failed to get RustDesk ID."
 fi
+
+# Echo the value of the password variable
+echo "Password: $rustdesk_pw"
+echo "..............................................."
 
 # Echo the value of the password variable
 echo "Password: $rustdesk_pw"
